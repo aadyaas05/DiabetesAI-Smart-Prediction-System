@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>DiabetesAI — Smart Prediction System</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<!-- AUTH OVERLAY -->
+<div class="auth-overlay" id="authOverlay">
+  <div class="auth-box">
+    <div class="auth-logo">🩺 DiabetesAI</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchTab('login')">Login</button>
+      <button class="auth-tab" onclick="switchTab('signup')">Sign Up</button>
+    </div>
+    <div id="loginForm">
+      <input type="text" id="loginUser" placeholder="Username" class="auth-input"/>
+      <input type="password" id="loginPass" placeholder="Password" class="auth-input"/>
+      <button class="auth-btn" onclick="doLogin()">Login</button>
+      <p class="auth-hint">Demo: admin / admin123</p>
+    </div>
+    <div id="signupForm" style="display:none">
+      <input type="text" id="signUser" placeholder="Choose username" class="auth-input"/>
+      <input type="password" id="signPass" placeholder="Choose password" class="auth-input"/>
+      <button class="auth-btn" onclick="doSignup()">Create Account</button>
+    </div>
+    <div class="auth-error" id="authError"></div>
+  </div>
+</div>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <div class="logo">🩺 <span>DiabetesAI</span></div>
+    <div class="nav-links">
+      <button class="nav-btn active" onclick="showPage('predict')">Predict</button>
+      <button class="nav-btn" onclick="showPage('history')">History</button>
+      <button class="nav-btn" onclick="showPage('analytics')">Analytics</button>
+      <button class="nav-btn admin-btn" id="adminNavBtn" style="display:none" onclick="showPage('admin')">Admin</button>
+    </div>
+    <div class="nav-right">
+      <button class="theme-btn" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+      <span class="user-badge" id="userBadge">Guest</span>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ── PREDICT PAGE ── -->
+<div class="page active" id="page-predict">
+  <div class="container">
+
+    <!-- Hero -->
+    <div class="hero-strip">
+      <div class="hero-text">
+        <h1>AI Diabetes<br><span class="accent">Prediction System</span></h1>
+        <p>Enter patient health metrics to get instant AI-powered diabetes risk assessment with personalized recommendations.</p>
+      </div>
+      <div class="hero-stats" id="heroStats">
+        <div class="hstat"><span class="hstat-n" id="hsBestModel">—</span><span class="hstat-l">Best Model</span></div>
+        <div class="hstat-sep"></div>
+        <div class="hstat"><span class="hstat-n" id="hsAccuracy">—</span><span class="hstat-l">Accuracy</span></div>
+        <div class="hstat-sep"></div>
+        <div class="hstat"><span class="hstat-n">4</span><span class="hstat-l">ML Models</span></div>
+      </div>
+    </div>
+
+    <!-- Input Form -->
+    <div class="form-card">
+      <div class="form-header">
+        <h2>Patient Health Metrics</h2>
+        <div class="form-actions">
+          <button class="btn-outline" onclick="fillSample(1)">Sample (Diabetic)</button>
+          <button class="btn-outline" onclick="fillSample(0)">Sample (Healthy)</button>
+          <button class="btn-outline" onclick="clearForm()">Clear</button>
+        </div>
+      </div>
+      <div class="input-grid">
+        <div class="input-group">
+          <label>Pregnancies <span class="info-tip" title="Number of times pregnant">ℹ</span></label>
+          <input type="number" id="Pregnancies" min="0" max="20" placeholder="0–17" class="field-input"/>
+          <span class="field-hint">Times pregnant</span>
+        </div>
+        <div class="input-group">
+          <label>Glucose <span class="info-tip" title="Plasma glucose concentration (mg/dL)">ℹ</span></label>
+          <input type="number" id="Glucose" min="0" max="300" placeholder="70–200 mg/dL" class="field-input"/>
+          <span class="field-hint">Normal: 70–140 mg/dL</span>
+        </div>
+        <div class="input-group">
+          <label>Blood Pressure <span class="info-tip" title="Diastolic blood pressure (mm Hg)">ℹ</span></label>
+          <input type="number" id="BloodPressure" min="0" max="200" placeholder="60–120 mm Hg" class="field-input"/>
+          <span class="field-hint">Normal: 60–90 mm Hg</span>
+        </div>
+        <div class="input-group">
+          <label>Skin Thickness <span class="info-tip" title="Triceps skin fold thickness (mm)">ℹ</span></label>
+          <input type="number" id="SkinThickness" min="0" max="100" placeholder="0–99 mm" class="field-input"/>
+          <span class="field-hint">Triceps fold (mm)</span>
+        </div>
+        <div class="input-group">
+          <label>Insulin <span class="info-tip" title="2-Hour serum insulin (μU/mL)">ℹ</span></label>
+          <input type="number" id="Insulin" min="0" max="900" placeholder="0–846 μU/mL" class="field-input"/>
+          <span class="field-hint">2-hour serum insulin</span>
+        </div>
+        <div class="input-group">
+          <label>BMI <span class="info-tip" title="Body Mass Index (kg/m²)">ℹ</span></label>
+          <input type="number" id="BMI" min="0" max="70" step="0.1" placeholder="18–50" class="field-input"/>
+          <span class="field-hint">Normal: 18.5–24.9</span>
+        </div>
+        <div class="input-group">
+          <label>Diabetes Pedigree <span class="info-tip" title="Diabetes pedigree function (genetic factor)">ℹ</span></label>
+          <input type="number" id="DiabetesPedigreeFunction" min="0" max="3" step="0.001" placeholder="0.0–2.5" class="field-input"/>
+          <span class="field-hint">Genetic factor score</span>
+        </div>
+        <div class="input-group">
+          <label>Age <span class="info-tip" title="Patient age in years">ℹ</span></label>
+          <input type="number" id="Age" min="1" max="120" placeholder="21–81 years" class="field-input"/>
+          <span class="field-hint">Years</span>
+        </div>
+      </div>
+
+      <!-- CSV Upload -->
+      <div class="csv-section">
+        <label class="csv-label">Or upload CSV for bulk prediction:</label>
+        <div class="csv-drop" id="csvDrop" onclick="document.getElementById('csvFile').click()">
+          📂 Drop CSV file here or click to browse
+          <input type="file" id="csvFile" accept=".csv" hidden onchange="handleCSV(this)"/>
+        </div>
+      </div>
+
+      <button class="predict-btn" id="predictBtn" onclick="predict()">
+        <span id="predictBtnText">🔬 Analyze & Predict</span>
+      </button>
+    </div>
+
+    <!-- Result Card -->
+    <div class="result-card" id="resultCard" style="display:none">
+      <div class="result-header">
+        <h2>Prediction Result</h2>
+        <div class="result-actions">
+          <button class="btn-outline" onclick="downloadReport()">📄 Download PDF Report</button>
+          <button class="btn-outline" onclick="document.getElementById('resultCard').style.display='none'">✕ Close</button>
+        </div>
+      </div>
+
+      <div class="result-top">
+        <!-- Big result -->
+        <div class="result-verdict" id="resultVerdict">
+          <div class="verdict-icon" id="verdictIcon">—</div>
+          <div class="verdict-text" id="verdictText">—</div>
+          <div class="verdict-sub" id="verdictSub">—</div>
+        </div>
+
+        <!-- Gauge Chart -->
+        <div class="gauge-wrap">
+          <canvas id="gaugeChart" width="200" height="200"></canvas>
+          <div class="gauge-label">
+            <div class="gauge-pct" id="gaugePct">0%</div>
+            <div class="gauge-sub">Risk Score</div>
+          </div>
+        </div>
+
+        <!-- Metrics -->
+        <div class="result-metrics">
+          <div class="metric-card">
+            <div class="metric-icon">🎯</div>
+            <div class="metric-val" id="metConfidence">—</div>
+            <div class="metric-lbl">Confidence</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon">🤖</div>
+            <div class="metric-val" id="metModel">—</div>
+            <div class="metric-lbl">Model Used</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon">📊</div>
+            <div class="metric-val" id="metAccuracy">—</div>
+            <div class="metric-lbl">Model Accuracy</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Explanation -->
+      <div class="explanation-box" id="explanationBox"></div>
+
+      <!-- Radar + Feature Importance Charts -->
+      <div class="charts-row">
+        <div class="chart-panel">
+          <h4>Patient Metrics Radar</h4>
+          <canvas id="radarChart"></canvas>
+        </div>
+        <div class="chart-panel">
+          <h4>Feature Importance</h4>
+          <canvas id="featureChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Recommendations -->
+      <div class="recs-panel">
+        <h4>💡 Personalized Health Recommendations</h4>
+        <div class="recs-list" id="recsList"></div>
+      </div>
+
+      <!-- Summary Table -->
+      <div class="summary-panel">
+        <h4>📋 Patient Summary Report</h4>
+        <table class="summary-table" id="summaryTable"></table>
+      </div>
+    </div>
+
+    <!-- Bulk Results -->
+    <div class="bulk-result" id="bulkResult" style="display:none">
+      <h3>📊 Bulk Prediction Results</h3>
+      <div class="bulk-stats" id="bulkStats"></div>
+      <div class="table-wrap"><table class="data-table" id="bulkTable"></table></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── HISTORY PAGE ── -->
+<div class="page" id="page-history">
+  <div class="container">
+    <h2 class="page-title">📋 Prediction History</h2>
+    <div class="table-wrap">
+      <table class="data-table" id="historyTable">
+        <thead><tr><th>Time</th><th>Glucose</th><th>BMI</th><th>Age</th><th>Result</th><th>Risk</th><th>Probability</th></tr></thead>
+        <tbody id="historyBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── ANALYTICS PAGE ── -->
+<div class="page" id="page-analytics">
+  <div class="container">
+    <h2 class="page-title">📊 Model Analytics</h2>
+    <div class="analytics-grid">
+      <div class="chart-card">
+        <h4>Model Accuracy Comparison</h4>
+        <canvas id="modelAccChart"></canvas>
+      </div>
+      <div class="chart-card">
+        <h4>Feature Importance (Random Forest)</h4>
+        <canvas id="featImpChart"></canvas>
+      </div>
+      <div class="chart-card">
+        <h4>Risk Distribution</h4>
+        <canvas id="riskDistChart"></canvas>
+      </div>
+      <div class="chart-card">
+        <h4>Prediction Trend</h4>
+        <canvas id="trendChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── ADMIN PAGE ── -->
+<div class="page" id="page-admin">
+  <div class="container">
+    <h2 class="page-title">⚙️ Admin Dashboard</h2>
+    <div class="admin-stats" id="adminStats"></div>
+    <h4 style="margin:24px 0 12px">All Predictions</h4>
+    <div class="table-wrap">
+      <table class="data-table" id="adminTable">
+        <thead><tr><th>Time</th><th>User</th><th>Glucose</th><th>BMI</th><th>Age</th><th>Result</th><th>Probability</th></tr></thead>
+        <tbody id="adminBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<script src="{{ url_for('static', filename='main.js') }}"></script>
+</body>
+</html>
