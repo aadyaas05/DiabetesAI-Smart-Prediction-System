@@ -1,0 +1,20 @@
+{
+  "feature_columns": [
+    "Pregnancies",
+    "Glucose",
+    "BloodPressure",
+    "SkinThickness",
+    "Insulin",
+    "BMI",
+    "DiabetesPedigreeFunction",
+    "Age"
+  ],
+  "best_model_name": "Random Forest",
+  "best_model_accuracy": 84.42,
+  "all_model_scores": {
+    "Logistic Regression": 81.82,
+    "Decision Tree": 80.52,
+    "Random Forest": 84.42,
+    "XGBoost": 79.22
+  }
+}

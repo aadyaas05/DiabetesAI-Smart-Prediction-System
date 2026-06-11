@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DiabetesAI Predictor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  </head>
+  <body>
+    <main class="container">
+      <h1>AI-Powered Diabetes Prediction System</h1>
+      <p class="subtitle">
+        Best model: <strong>{{ best_model_name }}</strong> (Accuracy: <strong>{{ best_model_accuracy }}%</strong>)
+      </p>
+
+      <form id="prediction-form" action="/predict" method="post" novalidate>
+        <div class="grid">
+          {% for feature in feature_columns %}
+            <label>
+              {{ feature }}
+              <input type="number" step="any" name="{{ feature }}" required />
+            </label>
+          {% endfor %}
+        </div>
+        <button type="submit">Predict Risk</button>
+      </form>
+
+      {% if prediction %}
+        <section class="result">
+          {% if prediction.error %}
+            <p class="error">Error: {{ prediction.error }}</p>
+          {% else %}
+            <h2>Prediction Result</h2>
+            <p>Risk: <strong>{{ prediction.risk_label }}</strong></p>
+            {% if prediction.probability is not none %}
+              <p>Probability of diabetes: <strong>{{ prediction.probability }}%</strong></p>
+            {% endif %}
+          {% endif %}
+        </section>
+      {% endif %}
+    </main>
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+  </body>
+  </html>
