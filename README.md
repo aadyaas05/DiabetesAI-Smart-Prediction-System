@@ -1,5 +1,6 @@
-<<<<<<< HEAD
 # 🩺 DiabetesAI — Smart Prediction System
+
+🔗 **[Live Demo](https://diabetesai-smart-prediction-system.onrender.com)**
 
 A production-ready AI-powered Diabetes Prediction Web Application built with Python, Flask, and Machine Learning.
 
@@ -81,4 +82,4 @@ Start Command: gunicorn app:app
 For educational purposes only. Not a substitute for professional medical advice.
 =======
 # DiabetesAI-Smart-Prediction-System
->>>>>>> 73d409f7fa16573f1f1cb378a759fea6b0831daf
+
